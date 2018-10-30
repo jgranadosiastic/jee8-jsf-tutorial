@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./templates/simple.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+    <ui:define name="title">
+        #{i18nLabels.Login}
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="frmLogin">            
+            <p:focus id="focuss" context="frmLogin" />
+            <p:messages  globalOnly="true"/>
+            <fieldset class="center-block">
+                <legend>#{i18nLabels.Login}</legend>
+
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <p:outputLabel for="name" value="#{i18nLabels.Username}:" />
+                        <p:inputText id="name" styleClass="form-control" pt:placeholder="#{i18nLabels.Username}" required="true"
+                                     pt:required="true" value="#{loginView.userName}"
+                                     requiredMessage="#{i18nMsgs.requiredfield}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <p:outputLabel for="pass" value="#{i18nLabels.Password}:" />
+                        <p:password id="pass" styleClass="form-control" pt:placeholder="#{i18nLabels.Password}" required="true"
+                                    pt:required="true" value="#{loginView.password}" pt:type="password"
+                                    requiredMessage="#{i18nMsgs.requiredfield}"/>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <p:commandLink styleClass="btn btn-primary"
+                                       update="@form,:growl" 
+                                       validateClient="true"
+                                       action="#{loginView.login}"
+                                       ajax="false">
+                            <span class="glyphicon glyphicon-log-in"></span> #{i18nLabels.Signin}
+                        </p:commandLink>
+                    </div>
+                </div>
+
+            </fieldset>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
