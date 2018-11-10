@@ -84,4 +84,25 @@
     <security-role>
         <role-name>PUBLIC</role-name>
     </security-role>
+
+    <error-page>
+        <error-code>403</error-code>
+        <location>/WEB-INF/403.xhtml</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/404.xhtml</location>
+    </error-page>
+    <error-page>
+        <exception-type>com.sun.faces.context.FacesFileNotFoundException</exception-type>
+        <location>/WEB-INF/404.xhtml</location>
+    </error-page>
+    <error-page>
+        <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+        <location>/WEB-INF/expired.xhtml</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/500.xhtml</location>
+    </error-page>
 </web-app>
