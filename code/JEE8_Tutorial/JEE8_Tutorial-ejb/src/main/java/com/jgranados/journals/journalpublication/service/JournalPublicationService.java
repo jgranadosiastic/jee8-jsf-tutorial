@@ -1,14 +1,18 @@
 package com.jgranados.journals.journalpublication.service;
 
 import com.jgranados.journals.authentication.service.AuthenticationService;
+import static com.jgranados.journals.config.ResourceConstants.PERSISTENCE_UNIT;
 import com.jgranados.journals.journal.domain.Journal;
 import com.jgranados.journals.journal.repository.JournalRepository;
 import com.jgranados.journals.journalpublication.domain.JournalPublication;
 import com.jgranados.journals.journalpublication.repository.JournalPublicationRepository;
+import com.jgranados.journals.notifications.service.NotificationService;
 import com.jgranados.journals.user.domain.User;
+import com.jgranados.journals.user.repository.UserRepository;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -30,17 +34,26 @@ import org.apache.commons.lang3.StringUtils;
 @LocalBean
 public class JournalPublicationService {
 
-    @PersistenceContext(unitName = "JEE8_Tutorial-PU")
+    private static final String NEW_PUBLICATION_MESSAGE_KEY = "NewPublicationMesage";
+    private static final String NEW_PUBLICATION_SUBJECT_KEY = "NewPublicationSubject";
+
+    @PersistenceContext(unitName = PERSISTENCE_UNIT)
     private EntityManager entityManager;
 
     @EJB
-    AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
 
     @EJB
-    JournalRepository journalRepository;
+    private JournalRepository journalRepository;
 
     @EJB
-    JournalPublicationRepository journalPublicationRepository;
+    private JournalPublicationRepository journalPublicationRepository;
+
+    @EJB
+    private NotificationService notificationService;
+
+    @EJB
+    private UserRepository userRepository;
 
     /**
      * Method do create a new journal publication
@@ -52,10 +65,11 @@ public class JournalPublicationService {
      * @return the created journal publication
      * @throws java.io.IOException
      */
-    public JournalPublication createJournalPublication(final JournalPublication newJournalPublication,
-                                                       final Integer idJournal,
-                                                       final InputStream fileInputStream,
-                                                       final String fileName)
+    public JournalPublication createJournalPublication(
+            final JournalPublication newJournalPublication,
+            final Integer idJournal,
+            final InputStream fileInputStream,
+            final String fileName)
             throws IOException {
         User creator = authenticationService.getAuthenticatedUser().get();
         newJournalPublication.setPublisherProfile(creator.getProfile());
@@ -69,6 +83,7 @@ public class JournalPublicationService {
         // add publication by cascade
         parentJournal.getJournalPublicationsCollection().add(newJournalPublication);
         entityManager.flush();
+        notificateJournalPublication(parentJournal);
         return newJournalPublication;
     }
 
@@ -81,9 +96,10 @@ public class JournalPublicationService {
      * @return the updated journal publication
      * @throws java.io.IOException
      */
-    public JournalPublication updateJournalPublication(final JournalPublication journalPublicationValues,
-                                                       final InputStream fileInputStream,
-                                                       final String fileName)
+    public JournalPublication updateJournalPublication(
+            final JournalPublication journalPublicationValues,
+            final InputStream fileInputStream,
+            final String fileName)
             throws IOException {
         JournalPublication journalPublication = journalPublicationRepository
                 .getJournalPublicationById(journalPublicationValues.getIdJournalPublication()).get();
@@ -105,5 +121,13 @@ public class JournalPublicationService {
         Journal journalParent = journalPublication.getJournal();
         journalParent.getJournalPublicationsCollection().remove(journalPublication);
         entityManager.merge(journalParent);
+    }
+
+    private void notificateJournalPublication(final Journal journal) {
+        List<User> users = userRepository.getUsersBySubscribedToJournal(journal);
+        String message = notificationService.getLocalizedText(NEW_PUBLICATION_MESSAGE_KEY);
+        String subject = notificationService.getLocalizedText(NEW_PUBLICATION_SUBJECT_KEY);
+        String name = journal.getName();
+        notificationService.sendNotification(users, String.format(subject, name), String.format(message, name));
     }
 }
