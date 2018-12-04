@@ -1,5 +1,7 @@
 package com.jgranados.journals.notifications.service;
 
+import static com.jgranados.journals.config.ResourceConstants.JMS_TOPIC_DESTINATION;
+
 import com.jgranados.journals.notifications.dto.NotificationMessageBody;
 import com.jgranados.journals.user.domain.User;
 import java.util.List;
@@ -27,7 +29,7 @@ import javax.jms.Topic;
 public class NotificationService {
 
     public static final String NOTIFICATIONS_BUNDLE = "com.jgranados.journals.notifications.i18n.NotificationsBundle";
-    @Resource(mappedName = "jms/__JEE8TutorialTopic")
+    @Resource(mappedName = JMS_TOPIC_DESTINATION)
     private Topic jee8TutorialTopic;
 
     @Inject

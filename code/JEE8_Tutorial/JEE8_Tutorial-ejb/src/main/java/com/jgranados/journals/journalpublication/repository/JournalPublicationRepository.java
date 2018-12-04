@@ -1,5 +1,7 @@
 package com.jgranados.journals.journalpublication.repository;
 
+import static com.jgranados.journals.config.ResourceConstants.PERSISTENCE_UNIT;
+
 import com.jgranados.journals.journal.domain.Journal;
 import com.jgranados.journals.journalpublication.domain.JournalPublication;
 import com.jgranados.journals.journalpublication.domain.JournalPublication_;
@@ -31,7 +33,7 @@ import org.apache.commons.lang3.ObjectUtils;
 @LocalBean
 public class JournalPublicationRepository {
 
-    @PersistenceContext(unitName = "JEE8_Tutorial-PU")
+    @PersistenceContext(unitName = PERSISTENCE_UNIT)
     private EntityManager entityManager;
 
     /**

@@ -1,5 +1,7 @@
 package com.jgranados.journals.user.repository;
 
+import static com.jgranados.journals.config.ResourceConstants.PERSISTENCE_UNIT;
+
 import com.jgranados.journals.journal.domain.Journal;
 import com.jgranados.journals.user.domain.User;
 import java.util.List;
@@ -29,7 +31,7 @@ public class UserRepository {
     private static final String BY_USERNAME = "SELECT u FROM User u Where u.userName = :userName";
     private static final String BY_SUBSCRIBED_TO_JOURNAL = "SELECT s.user FROM JournalSubscription s Where s.journal = :journal";
 
-    @PersistenceContext(unitName = "JEE8_Tutorial-PU")
+    @PersistenceContext(unitName = PERSISTENCE_UNIT)
     private EntityManager entityManager;
 
     /**

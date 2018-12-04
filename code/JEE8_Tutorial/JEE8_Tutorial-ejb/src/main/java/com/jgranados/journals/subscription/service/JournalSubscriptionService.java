@@ -1,5 +1,7 @@
 package com.jgranados.journals.subscription.service;
 
+import static com.jgranados.journals.config.ResourceConstants.PERSISTENCE_UNIT;
+
 import com.jgranados.journals.authentication.service.AuthenticationService;
 import com.jgranados.journals.journal.domain.Journal;
 import com.jgranados.journals.journal.repository.JournalRepository;
@@ -25,7 +27,7 @@ import javax.persistence.PersistenceContext;
 @LocalBean
 public class JournalSubscriptionService {
 
-    @PersistenceContext(unitName = "JEE8_Tutorial-PU")
+    @PersistenceContext(unitName = PERSISTENCE_UNIT)
     private EntityManager entityManager;
 
     @EJB

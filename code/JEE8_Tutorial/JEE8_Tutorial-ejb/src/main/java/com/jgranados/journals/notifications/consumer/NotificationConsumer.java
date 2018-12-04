@@ -1,5 +1,7 @@
 package com.jgranados.journals.notifications.consumer;
 
+import static com.jgranados.journals.config.ResourceConstants.JMS_TOPIC_DESTINATION;
+
 import com.jgranados.journals.notifications.dto.NotificationMessageBody;
 import com.jgranados.journals.notifications.service.EmailService;
 import java.util.logging.Level;
@@ -25,7 +27,7 @@ import javax.jms.ObjectMessage;
         activationConfig = {
             @ActivationConfigProperty(
                     propertyName = "destinationLookup",
-                    propertyValue = "jms/__JEE8TutorialTopic"),
+                    propertyValue = JMS_TOPIC_DESTINATION),
             @ActivationConfigProperty(
                     propertyName = "destinationType",
                     propertyValue = "javax.jms.Topic")

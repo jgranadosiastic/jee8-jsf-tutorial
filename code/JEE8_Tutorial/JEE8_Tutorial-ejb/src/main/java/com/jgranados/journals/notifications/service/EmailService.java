@@ -1,5 +1,7 @@
 package com.jgranados.journals.notifications.service;
 
+import static com.jgranados.journals.config.ResourceConstants.JDBC_RESOURCE;
+
 import com.jgranados.journals.notifications.dto.NotificationMessageBody;
 import com.jgranados.journals.user.domain.User;
 import java.util.logging.Level;
@@ -30,7 +32,7 @@ public class EmailService {
 
     public static final String CONTENT_TYPE = "text/html; charset=utf-8";
     public static final String EMAIL_ADDESS_SEPARATOR = ",";
-    @Resource(name = "mail/__JEE8_Tutorial")
+    @Resource(name = JDBC_RESOURCE)
     private Session emailSession;
 
     public void sendEmailBasedOnNotificationMessage(
