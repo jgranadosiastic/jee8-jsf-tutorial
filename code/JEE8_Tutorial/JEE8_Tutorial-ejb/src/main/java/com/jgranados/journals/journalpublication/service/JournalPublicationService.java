@@ -1,7 +1,8 @@
 package com.jgranados.journals.journalpublication.service;
 
-import com.jgranados.journals.authentication.service.AuthenticationService;
 import static com.jgranados.journals.config.ResourceConstants.PERSISTENCE_UNIT;
+
+import com.jgranados.journals.authentication.service.AuthenticationService;
 import com.jgranados.journals.journal.domain.Journal;
 import com.jgranados.journals.journal.repository.JournalRepository;
 import com.jgranados.journals.journalpublication.domain.JournalPublication;
@@ -34,8 +35,10 @@ import org.apache.commons.lang3.StringUtils;
 @LocalBean
 public class JournalPublicationService {
 
-    private static final String NEW_PUBLICATION_MESSAGE_KEY = "NewPublicationMesage";
+    private static final String NEW_PUBLICATION_MESSAGE_KEY = "NewPublicationMessage";
     private static final String NEW_PUBLICATION_SUBJECT_KEY = "NewPublicationSubject";
+    private static final String DELETED_PUBLICATION_MESSAGE_KEY = "DeletedPublicationMessage";
+    private static final String DELETED_PUBLICATION_SUBJECT_KEY = "DeletedPublicationSubject";
 
     @PersistenceContext(unitName = PERSISTENCE_UNIT)
     private EntityManager entityManager;
@@ -121,6 +124,7 @@ public class JournalPublicationService {
         Journal journalParent = journalPublication.getJournal();
         journalParent.getJournalPublicationsCollection().remove(journalPublication);
         entityManager.merge(journalParent);
+        notificateJournalPublicationDeleted(journalPublication);
     }
 
     private void notificateJournalPublication(final Journal journal) {
@@ -129,5 +133,14 @@ public class JournalPublicationService {
         String subject = notificationService.getLocalizedText(NEW_PUBLICATION_SUBJECT_KEY);
         String name = journal.getName();
         notificationService.sendNotification(users, String.format(subject, name), String.format(message, name));
+    }
+
+    private void notificateJournalPublicationDeleted(final JournalPublication journalPublication) {
+        List<User> users = userRepository.getUsersBySubscribedToJournal(journalPublication.getJournal());
+        String message = notificationService.getLocalizedText(DELETED_PUBLICATION_MESSAGE_KEY);
+        String subject = notificationService.getLocalizedText(DELETED_PUBLICATION_SUBJECT_KEY);
+        String name = journalPublication.getJournal().getName();
+        String description = journalPublication.getDescription();
+        notificationService.sendNotification(users, String.format(subject, name), String.format(message, description, name));
     }
 }

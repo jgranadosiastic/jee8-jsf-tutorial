@@ -3,6 +3,7 @@ package com.jgranados.journals.user.repository;
 import static com.jgranados.journals.config.ResourceConstants.PERSISTENCE_UNIT;
 
 import com.jgranados.journals.journal.domain.Journal;
+import com.jgranados.journals.user.domain.Profile;
 import com.jgranados.journals.user.domain.User;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,7 @@ public class UserRepository {
     private static final String BY_USERNAME_AND_PASSWORD = "SELECT u FROM User u Where u.userName = :userName and u.userPassword = :password";
     private static final String BY_USERNAME = "SELECT u FROM User u Where u.userName = :userName";
     private static final String BY_SUBSCRIBED_TO_JOURNAL = "SELECT s.user FROM JournalSubscription s Where s.journal = :journal";
+    private static final String BY_PROFILE = "SELECT u FROM User u Where u.profile = :profile";
 
     @PersistenceContext(unitName = PERSISTENCE_UNIT)
     private EntityManager entityManager;
@@ -71,5 +73,17 @@ public class UserRepository {
         Query query = entityManager.createQuery(BY_SUBSCRIBED_TO_JOURNAL);
         query.setParameter("journal", journal);
         return query.getResultList();
+    }
+
+    /**
+     * Method to get the user by its profile
+     *
+     * @param journal
+     * @return Optional with the user or empty
+     */
+    public Optional<User> getUserByProfile(final Profile profile) {
+        Query query = entityManager.createQuery(BY_PROFILE);
+        query.setParameter("profile", profile);
+        return query.getResultStream().findFirst();
     }
 }

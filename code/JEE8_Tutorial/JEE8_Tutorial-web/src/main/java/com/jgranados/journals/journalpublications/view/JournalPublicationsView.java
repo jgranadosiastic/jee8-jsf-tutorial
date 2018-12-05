@@ -31,6 +31,9 @@ import org.primefaces.model.UploadedFile;
 @ViewScoped
 public class JournalPublicationsView implements Serializable {
 
+    private static final String PUBLICATION_CREATED_KEY = "PublicationCreated";
+    private static final String PUBLICATION_UPDATED_KEY = "PublicationUpdated";
+
     @EJB
     private JournalFacadeLocal journalFacade;
 
@@ -133,15 +136,18 @@ public class JournalPublicationsView implements Serializable {
                 }
                 clearCurrentJournalPublication();
                 PrimeFaces.current().executeScript("PF('" + modalIdToClose + "').hide()");
+                MessageUtils.addSuccessLocalizedMessage(PUBLICATION_UPDATED_KEY);
             } else if (!isValidImageStream()) {
                 MessageUtils.addErrorLocalizedMessage("filerequired");
             } else {
                 journalFacade.createJournalPublication(currentPublication, idCurrentJournal, fileInputStream.getInputstream(), fileInputStream.getFileName());
                 clearCurrentJournalPublication();
                 PrimeFaces.current().executeScript("PF('" + modalIdToClose + "').hide()");
+                MessageUtils.addSuccessLocalizedMessage(PUBLICATION_CREATED_KEY);
             }
         } catch (Exception e) {
             //LOG
+            System.out.println("error");
         }
     }
 
@@ -166,5 +172,10 @@ public class JournalPublicationsView implements Serializable {
     public boolean isValidImageStream()
             throws IOException {
         return fileInputStream != null && fileInputStream.getInputstream() != null;
+    }
+
+    public void cleanCriteria() {
+        publicationDateStartSearchCriteria = null;
+        publicationDateEndSearchCriteria = null;
     }
 }

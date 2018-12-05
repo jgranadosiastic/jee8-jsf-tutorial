@@ -37,8 +37,14 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group">
-                        <p:commandLink styleClass="btn btn-primary pull-right" update=":journalTable" 
+                    <div class="btn-group pull-right">
+                        <p:commandLink styleClass="btn btn-danger"
+                                       update=":#{p:component('name')},:#{p:component('tag')}"
+                                       action="#{journalsView.cleanCriteria()}"
+                                       title="#{i18nLabels.CleanCriterias}">
+                            &nbsp;<span class="glyphicon glyphicon-repeat"></span>&nbsp;
+                        </p:commandLink>
+                        <p:commandLink styleClass="btn btn-primary" update=":journalTable"
                                        action="#{journalsView.searchJournals()}">
                             <span class="glyphicon glyphicon-search"></span> #{i18nLabels.Search}
                         </p:commandLink>
@@ -72,6 +78,10 @@
 
                 <p:column headerText="#{i18nLabels.IsActive}" styleClass="text-center">
                     <h:outputText value="#{journal.active ? i18nLabels.Yes : i18nLabels.No }" />
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.Subscriptions}" styleClass="text-center">
+                    <h:outputText value="#{journal.subscriptionsCount}" />
                 </p:column>
 
                 <p:column headerText="#{i18nLabels.Publications}" styleClass="text-center">
@@ -145,7 +155,7 @@
                     </div>
                     <div class="modal-footer ">
                         <p:commandLink styleClass="btn btn-warning btn-lg" style="width: 100%;"
-                                       update="@form,:#{p:component('journalTable')}" 
+                                       update="@form,:#{p:component('journalTable')},:#{p:component('growl')}"
                                        actionListener="#{journalsView.saveChanges('dlgEdit')}">
                             <span class="glyphicon glyphicon-ok-sign"></span> #{i18nLabels.Save}
                         </p:commandLink>

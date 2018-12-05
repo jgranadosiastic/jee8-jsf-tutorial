@@ -3,6 +3,7 @@ package com.jgranados.journals.journalsubscriptions.view;
 import com.jgranados.journals.journals.view.JournalsView;
 import com.jgranados.journals.subscription.JournalSubscriptionsFacadeLocal;
 import com.jgranados.journals.subscription.domain.JournalSubscription;
+import com.jgranados.journals.utils.MessageUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +25,9 @@ import javax.inject.Named;
 @Named
 @ViewScoped
 public class JournalSubscriptionsView implements Serializable {
+
+    private static final String SUBSCRIPTION_CORRECT_KEY = "SubscriptionCorrect";
+    private static final String UNSUBSCRIPTION_CORRECT_KEY = "UnsubscriptionCorrect";
 
     @EJB
     private JournalSubscriptionsFacadeLocal subscriptionFacade;
@@ -89,11 +93,19 @@ public class JournalSubscriptionsView implements Serializable {
         subscriptionFacade.subscribeToJournal(idJournal);
         journalsView.setCurrentJournal(journalsView.getJournalFacade().getJournalById(idJournal).get());
         journalsView.getJournals().remove(journalsView.getCurrentJournal());
+        MessageUtils.addSuccessLocalizedMessage(SUBSCRIPTION_CORRECT_KEY);
     }
 
     public void deleteSubscription(final Integer idSubscription) {
         JournalSubscription current = subscriptionFacade.getJournalSubscriptionById(idSubscription).get();
         subscriptionFacade.removeSubscription(idSubscription);
         subscriptions.remove(current);
+        MessageUtils.addWarningLocalizedMessage(UNSUBSCRIPTION_CORRECT_KEY);
+    }
+
+    public void cleanCriteria() {
+        journalNameSearchCriteria = "";
+        subscriptionDateStartSearchCriteria = null;
+        subscriptionDateEndSearchCriteria = null;
     }
 }

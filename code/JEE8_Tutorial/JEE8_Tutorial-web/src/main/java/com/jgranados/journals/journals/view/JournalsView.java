@@ -2,6 +2,7 @@ package com.jgranados.journals.journals.view;
 
 import com.jgranados.journals.journal.JournalFacadeLocal;
 import com.jgranados.journals.journal.domain.Journal;
+import com.jgranados.journals.utils.MessageUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,9 @@ import org.primefaces.PrimeFaces;
 @Named
 @ViewScoped
 public class JournalsView implements Serializable {
+
+    private static final String JOURNAL_CREATED_KEY = "JournalCreated";
+    private static final String JOURNAL_UPDATED_KEY = "JournalUpdated";
 
     @EJB
     private JournalFacadeLocal journalFacade;
@@ -84,8 +88,10 @@ public class JournalsView implements Serializable {
     public void saveChanges(final String modalIdToClose) {
         if (currentJournal.getIdJournal() != null) {
             journalFacade.updateJournal(currentJournal);
+            MessageUtils.addSuccessLocalizedMessage(JOURNAL_UPDATED_KEY);
         } else {
             journalFacade.createJournal(currentJournal);
+            MessageUtils.addSuccessLocalizedMessage(JOURNAL_CREATED_KEY);
         }
         clearCurrentJournal();
         PrimeFaces.current().executeScript("PF('" + modalIdToClose + "').hide()");
@@ -100,5 +106,10 @@ public class JournalsView implements Serializable {
 
     public void clearCurrentJournal() {
         setCurrentJournal(null);
+    }
+
+    public void cleanCriteria() {
+        nameSearchCriteria = "";
+        tagSearchCriteria = "";
     }
 }

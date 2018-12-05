@@ -10,8 +10,10 @@
                 xmlns:o="http://omnifaces.org/ui">
 
     <f:metadata>
-        <o:viewParam name="idJournal" required="#{not facesContext.postback}" value="#{journalPublicationsView.idCurrentJournal}" 
-                     requiredMessage="#{i18nMsgs.errorpageparams}"/>
+        <o:viewParam name="idJournal" required="true" value="#{journalPublicationsView.idCurrentJournal}"
+                     requiredMessage="#{i18nMsgs.errorpageparams}">
+            <o:viewParamValidationFailed sendError="404" message="#{i18nMsgs.errorpageparams}"/>
+        </o:viewParam>
         <o:viewAction action="#{journalPublicationsView.loadCurrentJournal()}" />
     </f:metadata>
 
@@ -36,17 +38,25 @@
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-3">
-                        <p:calendar value="#{journalPublicationsView.publicationDateStartSearchCriteria}"
+                        <p:calendar id="startCriteria"
+                                    value="#{journalPublicationsView.publicationDateStartSearchCriteria}"
                                     pt:placeholder="#{i18nLabels.PublicationDateStart}"/>
                     </div>
                     <div class="form-group col-sm-3">
-                        <p:calendar value="#{journalPublicationsView.publicationDateEndSearchCriteria}"
+                        <p:calendar id="endCriteria"
+                                    value="#{journalPublicationsView.publicationDateEndSearchCriteria}"
                                     pt:placeholder="#{i18nLabels.PublicationDateEnd}"/>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group">
-                        <p:commandLink styleClass="btn btn-primary pull-right"
+                    <div class="btn-group pull-right">
+                        <p:commandLink styleClass="btn btn-danger"
+                                       update=":#{p:component('startCriteria')},:#{p:component('endCriteria')}"
+                                       action="#{journalPublicationsView.cleanCriteria()}"
+                                       title="#{i18nLabels.CleanCriterias}">
+                            &nbsp;<span class="glyphicon glyphicon-repeat"></span>&nbsp;
+                        </p:commandLink>
+                        <p:commandLink styleClass="btn btn-primary"
                                        update=":publicationTable"
                                        actionListener="#{journalPublicationsView.searchJournalPublications()}">
                             <span class="glyphicon glyphicon-search"></span> #{i18nLabels.Search}
@@ -153,7 +163,7 @@
                     </div>
                     <div class="modal-footer ">
                         <p:commandLink styleClass="btn btn-warning btn-lg" style="width: 100%;"
-                                       update="@form,:#{p:component('publicationTable')}"
+                                       update="@form,:#{p:component('publicationTable')},:#{p:component('growl')}"
                                        actionListener="#{journalPublicationsView.saveChanges('dlgEdit')}">
                             <span class="glyphicon glyphicon-ok-sign"></span> #{i18nLabels.Save}
                         </p:commandLink>

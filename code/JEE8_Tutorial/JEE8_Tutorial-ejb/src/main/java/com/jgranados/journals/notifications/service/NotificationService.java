@@ -4,6 +4,7 @@ import static com.jgranados.journals.config.ResourceConstants.JMS_TOPIC_DESTINAT
 
 import com.jgranados.journals.notifications.dto.NotificationMessageBody;
 import com.jgranados.journals.user.domain.User;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.annotation.Resource;
@@ -44,6 +45,12 @@ public class NotificationService {
         ObjectMessage message = jmsContext.createObjectMessage(
                 new NotificationMessageBody(users, subject, notificationBody));
         jmsContext.createProducer().send(jee8TutorialTopic, message);
+    }
+
+    public void sendNotification(User user,
+            String subject,
+            String notificationBody) {
+        sendNotification(Collections.singletonList(user), subject, notificationBody);
     }
 
     public String getLocalizedText(String key) {

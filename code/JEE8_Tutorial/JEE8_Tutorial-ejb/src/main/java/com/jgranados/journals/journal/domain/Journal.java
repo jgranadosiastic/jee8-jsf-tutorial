@@ -1,6 +1,9 @@
 package com.jgranados.journals.journal.domain;
 
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+
 import com.jgranados.journals.journalpublication.domain.JournalPublication;
+import com.jgranados.journals.subscription.domain.JournalSubscription;
 import com.jgranados.journals.user.domain.Profile;
 import java.io.Serializable;
 import java.util.Collection;
@@ -67,8 +70,12 @@ public class Journal implements Serializable {
     private Profile ownerProfile;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "journal", orphanRemoval = true)
     private Collection<JournalPublication> journalPublicationsCollection;
+    @OneToMany(mappedBy = "journal")
+    private Collection<JournalSubscription> journalSubscriptionsCollection;
     @Transient
     private int publicationsCount;
+    @Transient
+    private int subscriptionsCount;
 
     public Journal() {
     }
@@ -87,11 +94,8 @@ public class Journal implements Serializable {
 
     @PostLoad
     private void postLoad() {
-        if (this.journalPublicationsCollection != null) {
-            publicationsCount = journalPublicationsCollection.size();
-        } else {
-            publicationsCount = 0;
-        }
+        publicationsCount = isEmpty(journalPublicationsCollection) ? 0 : journalPublicationsCollection.size();
+        subscriptionsCount = isEmpty(journalSubscriptionsCollection) ? 0 : journalSubscriptionsCollection.size();
     }
 
     public Integer getIdJournal() {
@@ -161,6 +165,11 @@ public class Journal implements Serializable {
     @Transient
     public int getPublicationsCount() {
         return publicationsCount;
+    }
+
+    @Transient
+    public int getSubscriptionsCount() {
+        return subscriptionsCount;
     }
 
     @Override
