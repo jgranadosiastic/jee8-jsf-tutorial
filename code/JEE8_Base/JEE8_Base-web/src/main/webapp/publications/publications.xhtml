@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./../templates/simple.xhtml"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:o="http://omnifaces.org/ui">
+
+    <f:metadata>
+        <o:viewParam name="idJournal" required="true" value="#{journalPublicationsView.idCurrentJournal}"
+                     requiredMessage="#{i18nMsgs.errorpageparams}">
+            <o:viewParamValidationFailed sendError="404" message="#{i18nMsgs.errorpageparams}"/>
+        </o:viewParam>
+        <o:viewAction action="#{journalPublicationsView.loadCurrentJournal()}" />
+    </f:metadata>
+
+    <ui:define name="title">
+        #{i18nLabels.Publications}
+    </ui:define>
+
+    <ui:define name="content">
+        <h2>#{i18nLabels.Publications}&nbsp;
+            <p:commandLink styleClass="btn btn-success" onclick="PF('dlgEdit').show();"
+                           rendered="#{request.isUserInRole('PUBLISHER')}">
+                <span class="glyphicon glyphicon-plus-sign"></span> #{i18nLabels.New}
+            </p:commandLink>
+        </h2>
+        <h3>#{i18nLabels.Journal}: <span>#{journalPublicationsView.currentJournal.name}</span></h3>
+
+        <h:form id="publicationsSearch">
+            <fieldset>
+                <legend>#{i18nLabels.Search}</legend>
+                <div class="row">
+                    <label class="control-label col-sm-12">#{i18nLabels.BetweenDates}: </label>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-3">
+                        <p:calendar id="startCriteria"
+                                    value="#{journalPublicationsView.publicationDateStartSearchCriteria}"
+                                    pt:placeholder="#{i18nLabels.PublicationDateStart}"/>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <p:calendar id="endCriteria"
+                                    value="#{journalPublicationsView.publicationDateEndSearchCriteria}"
+                                    pt:placeholder="#{i18nLabels.PublicationDateEnd}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="btn-group pull-right">
+                        <p:commandLink styleClass="btn btn-danger"
+                                       update=":#{p:component('startCriteria')},:#{p:component('endCriteria')}"
+                                       action="#{journalPublicationsView.cleanCriteria()}"
+                                       title="#{i18nLabels.CleanCriterias}">
+                            &nbsp;<span class="glyphicon glyphicon-repeat"></span>&nbsp;
+                        </p:commandLink>
+                        <p:commandLink styleClass="btn btn-primary"
+                                       update=":publicationTable"
+                                       actionListener="#{journalPublicationsView.searchJournalPublications()}">
+                            <span class="glyphicon glyphicon-search"></span> #{i18nLabels.Search}
+                        </p:commandLink>
+                    </div>
+                </div>
+            </fieldset>
+        </h:form>
+
+        <div class="row">
+            <p:dataTable id="publicationTable" var="publication" value="#{journalPublicationsView.publications}"
+                         reflow="true">
+                <p:column headerText="#">
+                    <h:outputText value="#{publication.idJournalPublication}" />
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.PublicationDate}">
+                    <h:outputText value="#{publication.publicationDate}" >
+                        <f:convertDateTime type="both" dateStyle="short" timeStyle="short"/>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.Description}">
+                    <h:outputText value="#{publication.description}" />
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.Publisher}">
+                    <h:outputText value="#{publication.publisherProfile.firstName} #{publication.publisherProfile.lastName}" />
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.Download}" styleClass="text-center">
+                    <h:form>
+                        <p pt:rendered="#{publication.fileName != null}"
+                           data-placement="top" data-toggle="tooltip" title="#{i18nLabels.Download} #{publication.fileName}">
+                            <p:commandLink styleClass="btn btn-success btn-xs"
+                                           ajax="false">
+                                <p:fileDownload value="#{journalPublicationsView.download(publication)}"/>
+                                <span class="glyphicon glyphicon-arrow-down"></span>
+                            </p:commandLink>
+                        </p>
+                    </h:form>
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.Edit}" styleClass="text-center" 
+                          rendered="#{request.isUserInRole('PUBLISHER')}">
+                    <p data-placement="top" data-toggle="tooltip" title="#{i18nLabels.Edit}">
+                        <p:commandLink styleClass="btn btn-primary btn-xs" oncomplete="PF('dlgEdit').show();"
+                                       update=":#{p:component('dlgEdit')}">
+                            <f:setPropertyActionListener value="#{publication}" target="#{journalPublicationsView.currentPublication}"/>
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </p:commandLink>
+                    </p>
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.Delete}" styleClass="text-center"
+                          rendered="#{request.isUserInRole('PUBLISHER')}">
+                    <p data-placement="top" data-toggle="tooltip" title="#{i18nLabels.Delete}">
+                        <p:commandLink styleClass="btn btn-danger btn-xs"
+                                       actionListener="#{journalPublicationsView.deleteJournalPublication((publication.idJournalPublication))}"
+                                       update=":#{p:component('publicationTable')}">
+                            <p:confirm header="#{i18nLabels.DeletePublication}" 
+                                       message="#{i18nMsgs.deletepublication}?" 
+                                       icon="ui-icon-alert"/>
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </p:commandLink>
+                    </p>
+                </p:column>
+            </p:dataTable>
+
+            <p:dialog header="#{i18nLabels.Publication}" id="dlgEdit" widgetVar="dlgEdit"
+                      fitViewport="true" modal="true" closeOnEscape="true"
+                      resizable="false"
+                      responsive="true">
+                <p:ajax event="close" listener="#{journalPublicationsView.clearCurrentJournalPublication()}" update="@this" />
+                <h:form enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <fieldset>
+                            <div class="form-group">
+                                <p:outputLabel value="#{i18nLabels.File}:" styleClass="col-md-4 control-label"/>
+                                <div class="col-md-8">
+                                    <p:outputLabel rendered="#{journalPublicationsView.currentPublication.idJournalPublication != null}" 
+                                                   value="#{journalPublicationsView.currentPublication.fileName}"/>
+                                    <p:fileUpload fileUploadListener="#{journalPublicationsView.handleFileUpload}" 
+                                                  styleClass="in-dialog"
+                                                  skinSimple="true" auto="true" allowTypes="/(\.|\/)(pdf)$/"
+                                                  update="@parent"
+                                                  label="#{i18nLabels.Choose}"/>
+                                    <p:outputLabel id="filenameLabel" rendered="#{journalPublicationsView.validImageStream}" 
+                                                   value="#{journalPublicationsView.fileInputStream.fileName}"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <p:outputLabel for="description" value="#{i18nLabels.Description}:" styleClass="col-md-4 control-label"/>
+                                <div class="col-md-8">
+
+                                    <p:inputTextarea id="description" styleClass="form-control"
+                                                     rows="4" cols="50" counter="display" maxlength="200" 
+                                                     counterTemplate="{0} #{i18nMsgs.charactersrem}." autoResize="false" 
+                                                     value="#{journalPublicationsView.currentPublication.description}"/>
+                                    <h:outputText id="display" />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer ">
+                        <p:commandLink styleClass="btn btn-warning btn-lg" style="width: 100%;"
+                                       update="@form,:#{p:component('publicationTable')},:#{p:component('growl')}"
+                                       actionListener="#{journalPublicationsView.saveChanges('dlgEdit')}">
+                            <span class="glyphicon glyphicon-ok-sign"></span> #{i18nLabels.Save}
+                        </p:commandLink>
+                    </div>
+                </h:form>
+            </p:dialog>
+        </div>
+    </ui:define>
+
+</ui:composition>

@@ -24,3 +24,6 @@ hs_err_pid*
 /code/JEE8_Tutorial/JEE8_Tutorial-ejb/target/
 /code/JEE8_Tutorial/JEE8_Tutorial-web/target/
 /code/JEE8_Tutorial/JEE8_Tutorial-ear/target/
+/code/JEE8_Base/JEE8_Base-ejb/target/
+/code/JEE8_Base/JEE8_Base-web/target/
+/code/JEE8_Base/JEE8_Base-ear/target/

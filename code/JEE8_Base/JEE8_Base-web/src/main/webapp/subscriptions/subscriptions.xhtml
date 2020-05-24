@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./../templates/simple.xhtml"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:of="http://omnifaces.org/functions">
+
+    <ui:define name="title">
+        #{i18nLabels.Subscriptions}
+    </ui:define>
+
+    <ui:define name="content">
+        <h2>#{i18nLabels.MySubscriptions}
+            <p:commandLink styleClass="btn btn-success" onclick="PF('dlgSearchJournals').show();">
+                <span class="glyphicon glyphicon-heart"></span> #{i18nLabels.SubscribeTo}...
+            </p:commandLink>
+        </h2>
+
+        <h:form id="publicationsSearch">
+            <fieldset>
+                <legend>#{i18nLabels.Search}</legend>
+                <div class="row">
+                    <label class="control-label col-sm-12">#{i18nLabels.BetweenDates}: </label>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-3">
+                        <p:calendar id="startCriteria"
+                                    value="#{journalSubscriptionsView.subscriptionDateStartSearchCriteria}"
+                                    pt:placeholder="#{i18nLabels.SubscriptionDateStart}"/>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <p:calendar id="endCriteria"
+                                    value="#{journalSubscriptionsView.subscriptionDateEndSearchCriteria}"
+                                    pt:placeholder="#{i18nLabels.SubscriptionDateEnd}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <p:outputLabel for="name" value="#{i18nLabels.JournalName}:" />
+                        <p:inputText id="name"
+                                     styleClass="form-control"
+                                     pt:placeholder="#{i18nLabels.JournalName}"
+                                     value="#{journalSubscriptionsView.journalNameSearchCriteria}"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="btn-group pull-right">
+                        <p:commandLink styleClass="btn btn-danger"
+                                       update=":#{p:component('startCriteria')},:#{p:component('endCriteria')},:#{p:component('name')}"
+                                       action="#{journalSubscriptionsView.cleanCriteria()}"
+                                       title="#{i18nLabels.CleanCriterias}">
+                            &nbsp;<span class="glyphicon glyphicon-repeat"></span>&nbsp;
+                        </p:commandLink>
+                        <p:commandLink styleClass="btn btn-primary" update=":subscriptionsTable"
+                                       actionListener="#{journalSubscriptionsView.searchJournalSubscriptions()}">
+                            <span class="glyphicon glyphicon-search"></span> #{i18nLabels.Search}
+                        </p:commandLink>
+                    </div>
+                </div>
+            </fieldset>
+        </h:form>
+
+        <div class="row">
+            <p:dataTable id="subscriptionsTable" var="subscription" value="#{journalSubscriptionsView.subscriptions}"
+                         reflow="true">
+                <p:column headerText="#{i18nLabels.JournalName}">
+                    <h:outputText value="#{subscription.journal.name}" />
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.Owner}">
+                    <h:outputText value="#{subscription.journal.ownerProfile.firstName} #{subscription.journal.ownerProfile.lastName}" />
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.SubscriptionDate}">
+                    <h:outputText value="#{subscription.subscriptionDate}" >
+                        <f:convertDateTime type="both" dateStyle="short" timeStyle="short"/>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.Publications}" styleClass="text-center">
+                    <p data-placement="top" data-toggle="tooltip" title="#{i18nLabels.Publications}">
+                        <span>#{subscription.journal.publicationsCount} </span>
+                        <button jsf:outcome="publications" styleClass="btn btn-primary btn-xs">
+                            <span class="glyphicon glyphicon-folder-open"></span>
+                            <f:param name="idJournal" value="#{subscription.journal.idJournal}"/>
+                        </button>
+                    </p>
+                </p:column>
+
+                <p:column headerText="#{i18nLabels.Unsubscribe}" styleClass="text-center">
+                    <p data-placement="top" data-toggle="tooltip" title="#{i18nLabels.Unsubscribe}">
+                        <p:commandLink styleClass="btn btn-danger btn-xs"
+                                       actionListener="#{journalSubscriptionsView.deleteSubscription(subscription.idJournalSubscription)}"
+                                       update=":#{p:component('subscriptionsTable')},:#{p:component('growl')}">
+                            <p:confirm header="#{i18nLabels.Unsubscribe}" 
+                                       message="#{of:format1(i18nMsgs.deleteSubscription, subscription.journal.name)}?"
+                                       icon="ui-icon-alert"/>
+                            <span class="glyphicon glyphicon-heart-empty"></span>
+                        </p:commandLink>
+                    </p>
+                </p:column>
+            </p:dataTable>
+
+            <p:dialog header="#{i18nLabels.SearchJournals}" id="dlgSearchJournals" widgetVar="dlgSearchJournals"
+                      fitViewport="true" modal="true" closeOnEscape="true"
+                      responsive="true"
+                      width="90%">
+                <div class="modal-body">
+                    <h:form id="journalSearch">
+                        <fieldset>
+                            <div class="row">
+                                <div class="form-group col-sm-4">
+                                    <p:outputLabel for="journalName" value="#{i18nLabels.JournalName}:" />
+                                    <p:inputText id="journalName" styleClass="form-control" pt:placeholder="#{i18nLabels.JournalName}"
+                                                 value="#{journalSubscriptionsView.journalsView.nameSearchCriteria}"/>
+                                </div>
+                                <div class="form-group  col-sm-4">
+                                    <p:outputLabel for="tag" value="#{i18nLabels.Tag}:" />
+                                    <p:inputText id="tag" styleClass="form-control" pt:placeholder="#{i18nLabels.Tag}"
+                                                 value="#{journalSubscriptionsView.journalsView.tagSearchCriteria}"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="btn-group pull-right">
+                                    <p:commandLink styleClass="btn btn-danger"
+                                                   update=":#{p:component('journalName')},:#{p:component('tag')}"
+                                                   action="#{journalSubscriptionsView.journalsView.cleanCriteria()}"
+                                                   title="#{i18nLabels.CleanCriterias}">
+                                        &nbsp;<span class="glyphicon glyphicon-repeat"></span>&nbsp;
+                                    </p:commandLink>
+                                    <p:commandLink styleClass="btn btn-primary pull-right" update=":journalTable"
+                                                   action="#{journalSubscriptionsView.journalsView.searchJournals()}">
+                                        <span class="glyphicon glyphicon-search"></span> #{i18nLabels.Search}
+                                    </p:commandLink>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </h:form>
+                    <div class="row">
+                        <p:dataTable id="journalTable" var="journal" value="#{journalSubscriptionsView.journalsView.journals}"
+                                     reflow="true" styleClass="modal-journal-table">
+                            <p:column headerText="#">
+                                <h:outputText value="#{journal.idJournal}" />
+                            </p:column>
+
+                            <p:column headerText="#{i18nLabels.JournalName}">
+                                <h:outputText value="#{journal.name}" />
+                            </p:column>
+
+                            <p:column headerText="#{i18nLabels.Tag}">
+                                <h:outputText value="#{journal.tags}" />
+                            </p:column>
+
+                            <p:column headerText="#{i18nLabels.About}">
+                                <h:outputText value="#{journal.about}" />
+                            </p:column>
+
+                            <p:column headerText="#{i18nLabels.Owner}">
+                                <h:outputText value="#{journal.ownerProfile.firstName} #{journal.ownerProfile.lastName}" />
+                            </p:column>
+
+                            <p:column headerText="#{i18nLabels.SubscribeTo}" styleClass="text-center">
+                                <p data-placement="top" data-toggle="tooltip" title="Subscribe">
+                                    <p:commandLink styleClass="btn btn-primary btn-xs"
+                                                   actionListener="#{journalSubscriptionsView.subscribeToJournal(journal.idJournal)}"
+                                                   update=":#{p:component('journalTable')},:#{p:component('growl')}">
+                                        <p:confirm header="#{i18nLabels.SubscribeTo}"
+                                                   message="#{of:format1(i18nMsgs.SubscribeToConfirm, journal.name)}?"
+                                                   icon="ui-icon-alert"/>
+                                        <span class="glyphicon glyphicon-heart"></span>
+                                    </p:commandLink>
+                                </p>
+                            </p:column>
+
+                        </p:dataTable>
+
+                    </div>
+                </div>
+                <div class="modal-footer ">
+                    <p:commandLink styleClass="btn btn-warning btn-lg" style="width: 100%;"
+                                   onclick="PF('dlgSearchJournals').hide();">
+                        <span class="glyphicon glyphicon-ok-sign"></span> Done
+                    </p:commandLink>
+                </div>
+            </p:dialog>
+        </div>
+    </ui:define>
+
+</ui:composition>
